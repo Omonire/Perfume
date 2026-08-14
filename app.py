@@ -11,21 +11,25 @@ app.config['SECRET_KEY'] = 'perfume_luxury_secret_key_2025'
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 DB_PATH = os.path.join(BASE_DIR, 'perfume_store.db')
 
-# On Vercel / read-only filesystem, fallback to /tmp or memory
+# On Vercel / read-only filesystem, fallback to /tmp
 if os.environ.get('VERCEL'):
     tmp_db = os.path.join('/tmp', 'perfume_store.db')
     app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{tmp_db}'
+    app.config['UPLOAD_FOLDER'] = os.path.join('/tmp', 'uploads')
 else:
     app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_PATH}'
+    app.config['UPLOAD_FOLDER'] = os.path.join(BASE_DIR, 'static', 'uploads')
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['UPLOAD_FOLDER'] = os.path.join(BASE_DIR, 'static', 'uploads')
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB max
 
 db = SQLAlchemy(app)
 
-# Ensure upload directory exists
-os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+# Ensure upload directory exists gracefully
+try:
+    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+except OSError:
+    pass
 
 
 class Product(db.Model):
