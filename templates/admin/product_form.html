@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block title %}AURA | {% if product %}Edit {{ product.name }}{% else %}New Fragrance Entry{% endif %}{% endblock %}
+
+{% block content %}
+<section class="pt-32 pb-20 max-w-4xl mx-auto px-6">
+    <!-- Breadcrumbs -->
+    <div class="flex items-center gap-2 text-xs text-gray-400 mb-8 uppercase tracking-widest">
+        <a href="{{ url_for('admin_dashboard') }}" class="hover:text-gold-400">Admin Portal</a>
+        <span>/</span>
+        <span class="text-gold-400 font-semibold">{% if product %}Edit Perfume #{{ product.id }}{% else %}New Fragrance{% endif %}</span>
+    </div>
+
+    <div class="glass-panel p-8 sm:p-12 rounded-3xl border border-gold-500/30 shadow-2xl">
+        <div class="mb-8 border-b border-white/10 pb-6">
+            <h1 class="text-3xl font-serif font-bold text-white">
+                {% if product %}Edit Perfume Specification{% else %}Create New Perfume Masterpiece{% endif %}
+            </h1>
+            <p class="text-xs text-gray-400 mt-2">
+                Configure scent parameters, 3D bottle shader colors, pricing, stock levels, and fragrance image uploads.
+            </p>
+        </div>
+
+        <form action="{{ action_url }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+            <!-- Name & Tagline -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div class="space-y-2">
+                    <label class="text-xs uppercase tracking-wider font-bold text-gray-300">Perfume Name *</label>
+                    <input type="text" name="name" value="{{ product.name if product else '' }}" required placeholder="e.g. Élixir De Nuit" class="w-full px-4 py-3 bg-obsidian-900 border border-white/15 rounded-xl text-white text-sm focus:outline-none focus:border-gold-500">
+                </div>
+                <div class="space-y-2">
+                    <label class="text-xs uppercase tracking-wider font-bold text-gray-300">Tagline / Subtitle</label>
+                    <input type="text" name="tagline" value="{{ product.tagline if product else '' }}" placeholder="e.g. Hauntingly seductive & mysterious" class="w-full px-4 py-3 bg-obsidian-900 border border-white/15 rounded-xl text-white text-sm focus:outline-none focus:border-gold-500">
+                </div>
+            </div>
+
+            <!-- Price & Stock -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div class="space-y-2">
+                    <label class="text-xs uppercase tracking-wider font-bold text-gray-300">Price (USD) *</label>
+                    <input type="number" step="0.01" name="price" value="{{ product.price if product else '250.00' }}" required class="w-full px-4 py-3 bg-obsidian-900 border border-white/15 rounded-xl text-gold-400 font-mono font-bold text-sm focus:outline-none focus:border-gold-500">
+                </div>
+                <div class="space-y-2">
+                    <label class="text-xs uppercase tracking-wider font-bold text-gray-300">Available Stock Quantity *</label>
+                    <input type="number" name="stock" value="{{ product.stock if product else '15' }}" required class="w-full px-4 py-3 bg-obsidian-900 border border-white/15 rounded-xl text-white font-bold text-sm focus:outline-none focus:border-gold-500">
+                </div>
+            </div>
+
+            <!-- Description -->
+            <div class="space-y-2">
+                <label class="text-xs uppercase tracking-wider font-bold text-gray-300">Olfactive Story / Description *</label>
+                <textarea name="description" rows="4" required placeholder="Describe the fragrance story, sillage, and ingredients..." class="w-full px-4 py-3 bg-obsidian-900 border border-white/15 rounded-xl text-white text-sm focus:outline-none focus:border-gold-500 leading-relaxed">{{ product.description if product else '' }}</textarea>
+            </div>
+
+            <!-- Fragrance Notes Accord -->
+            <div class="space-y-2">
+                <label class="text-xs uppercase tracking-wider font-bold text-gray-300">Fragrance Notes (Comma Separated)</label>
+                <input type="text" name="fragrance_notes" value="{{ product.fragrance_notes if product else '' }}" placeholder="Top Notes, Heart Notes, Base Notes..." class="w-full px-4 py-3 bg-obsidian-900 border border-white/15 rounded-xl text-white text-sm focus:outline-none focus:border-gold-500">
+            </div>
+
+            <!-- 3D Bottle Colors Shader Palette -->
+            <div class="p-6 rounded-2xl bg-obsidian-900/60 border border-gold-500/20 space-y-4">
+                <h3 class="text-xs font-bold uppercase tracking-widest text-gold-400 flex items-center gap-2">
+                    <i class="fa-solid fa-palette"></i>
+                    <span>Interactive 3D Material Colors</span>
+                </h3>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                    <div class="space-y-2">
+                        <label class="text-[11px] uppercase text-gray-400 block">Glass Bottle Color</label>
+                        <input type="color" name="bottle_color" value="{{ product.bottle_color if product else '#3b0764' }}" class="w-full h-11 bg-obsidian-900 border border-white/15 rounded-xl cursor-pointer p-1">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[11px] uppercase text-gray-400 block">Inner Liquid Color</label>
+                        <input type="color" name="liquid_color" value="{{ product.liquid_color if product else '#9333ea' }}" class="w-full h-11 bg-obsidian-900 border border-white/15 rounded-xl cursor-pointer p-1">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[11px] uppercase text-gray-400 block">Cap / Collar Accent</label>
+                        <input type="color" name="accent_color" value="{{ product.accent_color if product else '#fbbf24' }}" class="w-full h-11 bg-obsidian-900 border border-white/15 rounded-xl cursor-pointer p-1">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Image Options -->
+            <div class="space-y-4">
+                <h3 class="text-xs font-bold uppercase tracking-widest text-gray-300">Image Source</h3>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label class="text-[11px] uppercase text-gray-400">Image URL</label>
+                        <input type="text" name="image_url" value="{{ product.image_url if product else '' }}" placeholder="https://images.unsplash.com/..." class="w-full px-4 py-3 bg-obsidian-900 border border-white/15 rounded-xl text-white text-xs focus:outline-none focus:border-gold-500">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[11px] uppercase text-gray-400">Or Upload Image File</label>
+                        <input type="file" name="image_file" accept="image/*" class="w-full px-3 py-2 bg-obsidian-900 border border-white/15 rounded-xl text-gray-400 text-xs focus:outline-none focus:border-gold-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-gold-500 file:text-obsidian-900 hover:file:bg-gold-400">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="pt-6 border-t border-white/10 flex items-center justify-end gap-4">
+                <a href="{{ url_for('admin_dashboard') }}" class="px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold text-xs uppercase tracking-wider transition-all">
+                    Cancel
+                </a>
+                <button type="submit" class="px-8 py-3.5 rounded-xl bg-gold-500 hover:bg-gold-400 text-obsidian-900 font-bold text-xs uppercase tracking-widest transition-all shadow-lg shadow-gold-500/20">
+                    {% if product %}Save Changes{% else %}Publish Perfume{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}

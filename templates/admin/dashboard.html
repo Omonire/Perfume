@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block title %}AURA | Admin Perfume Dashboard{% endblock %}
+
+{% block content %}
+<section class="pt-32 pb-20 max-w-7xl mx-auto px-6">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between mb-10 pb-6 border-b border-white/10 gap-4">
+        <div>
+            <div class="flex items-center gap-2 text-xs uppercase tracking-widest text-gold-400 font-bold mb-1">
+                <i class="fa-solid fa-shield-halved"></i>
+                <span>Parfumerie Admin Portal</span>
+            </div>
+            <h1 class="text-3xl sm:text-4xl font-serif font-bold text-white">Perfume Inventory CRUD System</h1>
+        </div>
+
+        <a href="{{ url_for('admin_create_product') }}" class="px-6 py-3 rounded-xl bg-gold-500 hover:bg-gold-400 text-obsidian-900 font-bold text-xs uppercase tracking-widest transition-all shadow-lg shadow-gold-500/20 flex items-center gap-2 w-fit">
+            <i class="fa-solid fa-plus"></i>
+            <span>Add New Perfume</span>
+        </a>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10">
+        <div class="p-6 rounded-2xl glass-panel border border-white/10 flex items-center justify-between">
+            <div>
+                <span class="text-xs text-gray-400 uppercase tracking-wider block">Total Products</span>
+                <span class="text-3xl font-serif font-bold text-white mt-1 block">{{ products|length }}</span>
+            </div>
+            <div class="w-12 h-12 rounded-xl bg-gold-500/10 border border-gold-500/30 flex items-center justify-center text-gold-400 text-xl">
+                <i class="fa-solid fa-bottle-droplet"></i>
+            </div>
+        </div>
+
+        <div class="p-6 rounded-2xl glass-panel border border-white/10 flex items-center justify-between">
+            <div>
+                <span class="text-xs text-gray-400 uppercase tracking-wider block">Total Inventory Stock</span>
+                <span class="text-3xl font-serif font-bold text-emerald-400 mt-1 block">{{ products|sum(attribute='stock') }}</span>
+            </div>
+            <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-xl">
+                <i class="fa-solid fa-cubes"></i>
+            </div>
+        </div>
+
+        <div class="p-6 rounded-2xl glass-panel border border-white/10 flex items-center justify-between">
+            <div>
+                <span class="text-xs text-gray-400 uppercase tracking-wider block">Server Status</span>
+                <span class="text-sm font-mono font-bold text-gold-400 mt-1 block">Live & Active</span>
+            </div>
+            <div class="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400 text-xl">
+                <i class="fa-solid fa-server"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Products CRUD Table -->
+    <div class="rounded-2xl glass-panel border border-white/10 overflow-hidden shadow-2xl">
+        <div class="p-6 border-b border-white/10 flex items-center justify-between">
+            <h2 class="font-serif text-xl font-bold text-white">Active Product Catalogue</h2>
+            <span class="text-xs text-gray-400">Click actions to Edit or Delete</span>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+                <thead class="bg-obsidian-800 text-gray-400 uppercase tracking-wider text-[10px]">
+                    <tr>
+                        <th class="p-4">Perfume</th>
+                        <th class="p-4">3D Colors</th>
+                        <th class="p-4">Price</th>
+                        <th class="p-4">Stock</th>
+                        <th class="p-4">Notes</th>
+                        <th class="p-4 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-white/5 text-gray-300">
+                    {% for product in products %}
+                    <tr class="hover:bg-white/5 transition-colors">
+                        <td class="p-4">
+                            <div class="flex items-center gap-3">
+                                <img src="{{ product.image_url }}" alt="{{ product.name }}" class="w-12 h-12 object-cover rounded-lg border border-white/10">
+                                <div>
+                                    <a href="{{ url_for('product_detail', product_id=product.id) }}" class="font-bold text-white hover:text-gold-400 text-sm block">
+                                        {{ product.name }}
+                                    </a>
+                                    <span class="text-[10px] text-gray-400 italic">{{ product.tagline or 'No tagline' }}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="p-4">
+                            <div class="flex items-center gap-1.5">
+                                <span class="w-4 h-4 rounded-full border border-white/30" style="background-color: {{ product.bottle_color }}" title="Bottle Color"></span>
+                                <span class="w-4 h-4 rounded-full border border-white/30" style="background-color: {{ product.liquid_color }}" title="Liquid Color"></span>
+                                <span class="w-4 h-4 rounded-full border border-white/30" style="background-color: {{ product.accent_color }}" title="Cap Accent"></span>
+                            </div>
+                        </td>
+                        <td class="p-4 font-mono font-bold text-gold-400 text-sm">
+                            ${{ "%.2f"|format(product.price) }}
+                        </td>
+                        <td class="p-4 font-bold">
+                            <span class="px-2.5 py-1 rounded-full text-[10px] {% if product.stock > 5 %}bg-emerald-950 text-emerald-400 border border-emerald-500/30{% else %}bg-rose-950 text-rose-400 border border-rose-500/30{% endif %}">
+                                {{ product.stock }} units
+                            </span>
+                        </td>
+                        <td class="p-4 max-w-xs truncate text-gray-400 font-mono text-[11px]">
+                            {{ product.fragrance_notes or 'N/A' }}
+                        </td>
+                        <td class="p-4 text-right">
+                            <div class="flex items-center justify-end gap-2">
+                                <a href="{{ url_for('admin_edit_product', product_id=product.id) }}" class="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-gold-500 hover:text-black text-white transition-all text-xs font-semibold flex items-center gap-1">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                    <span>Edit</span>
+                                </a>
+
+                                <form action="{{ url_for('admin_delete_product', product_id=product.id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete {{ product.name }}?');">
+                                    <button type="submit" class="px-3 py-1.5 rounded-lg bg-rose-950/60 hover:bg-rose-600 text-rose-300 hover:text-white transition-all text-xs font-semibold flex items-center gap-1 border border-rose-500/30">
+                                        <i class="fa-solid fa-trash"></i>
+                                        <span>Delete</span>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% endblock %}

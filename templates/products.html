@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}AURA | All Perfumes Vault{% endblock %}
+
+{% block content %}
+<section class="pt-32 pb-20 max-w-7xl mx-auto px-6">
+    <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 border-b border-white/10 pb-8 gap-6">
+        <div>
+            <span class="text-xs font-semibold uppercase tracking-[0.3em] text-gold-400">The Complete Vault</span>
+            <h1 class="text-3xl sm:text-5xl font-serif font-bold text-white mt-2">Perfume Collection</h1>
+            <p class="text-xs text-gray-400 mt-2 max-w-xl">
+                Browse our entire portfolio of olfactory creations. Each product features individual 3D interactive viewing and custom fragrance profiles.
+            </p>
+        </div>
+        <div>
+            <a href="{{ url_for('admin_create_product') }}" class="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-gold-500 hover:bg-gold-400 text-obsidian-900 font-bold text-xs uppercase tracking-wider transition-all shadow-lg shadow-gold-500/20">
+                <i class="fa-solid fa-plus"></i>
+                <span>Add Perfume (Admin)</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Product Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {% for product in products %}
+        <div class="product-card rounded-2xl glass-panel border border-white/10 hover:border-gold-500/50 transition-all duration-300 overflow-hidden flex flex-col justify-between group">
+            <div>
+                <!-- Image Container -->
+                <div class="relative h-80 w-full overflow-hidden bg-obsidian-800">
+                    <img src="{{ product.image_url }}" alt="{{ product.name }}" class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700">
+                    <div class="absolute inset-0 bg-gradient-to-t from-obsidian-900 via-obsidian-900/20 to-transparent"></div>
+
+                    <div class="absolute top-4 right-4 flex gap-2">
+                        <span class="px-3 py-1 rounded-full text-xs font-bold tracking-wider uppercase bg-obsidian-900/90 text-gold-400 border border-gold-500/30">
+                            ${{ "%.2f"|format(product.price) }}
+                        </span>
+                    </div>
+
+                    <div class="absolute bottom-4 left-4">
+                        <span class="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider {% if product.stock > 0 %}bg-emerald-950/80 text-emerald-400 border border-emerald-500/30{% else %}bg-rose-950/80 text-rose-400 border border-rose-500/30{% endif %}">
+                            {% if product.stock > 0 %}{{ product.stock }} Available{% else %}Out of Stock{% endif %}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Specs -->
+                <div class="p-6 space-y-3">
+                    <h2 class="text-2xl font-serif font-bold text-white group-hover:text-gold-400 transition-colors">
+                        {{ product.name }}
+                    </h2>
+                    {% if product.tagline %}
+                    <p class="text-xs font-serif italic text-gold-400/90">{{ product.tagline }}</p>
+                    {% endif %}
+                    <p class="text-xs text-gray-300 leading-relaxed">
+                        {{ product.description }}
+                    </p>
+
+                    {% if product.fragrance_notes %}
+                    <div class="pt-3 border-t border-white/5 space-y-1">
+                        <span class="text-[10px] uppercase tracking-widest text-gray-400 font-semibold">Notes Sillage</span>
+                        <p class="text-xs text-gold-300/90 font-mono">{{ product.fragrance_notes }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="p-6 pt-0 flex items-center justify-between gap-3">
+                <a href="{{ url_for('product_detail', product_id=product.id) }}" class="flex-1 py-3 text-center rounded-xl bg-white/5 hover:bg-gold-500 hover:text-black border border-white/10 transition-all text-xs uppercase tracking-wider font-semibold">
+                    Interactive 3D Experience
+                </a>
+                <form action="{{ url_for('add_to_cart') }}" method="POST">
+                    <input type="hidden" name="product_id" value="{{ product.id }}">
+                    <button type="submit" class="p-3 rounded-xl bg-gold-500 hover:bg-gold-400 text-obsidian-900 transition-all" title="Add to Bag">
+                        <i class="fa-solid fa-bag-shopping"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

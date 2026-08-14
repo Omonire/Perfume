@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block title %}AURA | {{ product.name }}{% endblock %}
+
+{% block content %}
+<section class="pt-32 pb-20 max-w-7xl mx-auto px-6">
+    <!-- Breadcrumb -->
+    <div class="flex items-center gap-2 text-xs text-gray-400 mb-8 uppercase tracking-widest">
+        <a href="{{ url_for('home') }}" class="hover:text-gold-400 transition-colors">Home</a>
+        <span>/</span>
+        <a href="{{ url_for('products_list') }}" class="hover:text-gold-400 transition-colors">Collection</a>
+        <span>/</span>
+        <span class="text-gold-400 font-semibold">{{ product.name }}</span>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+
+        <!-- Left: 3D Interactive Viewer & Photo Switcher -->
+        <div class="lg:col-span-7 space-y-6">
+            <div class="w-full h-[520px] rounded-3xl glass-panel-gold border border-gold-500/30 relative overflow-hidden shadow-2xl flex items-center justify-center">
+                <div id="productDetail3DCanvas" class="w-full h-full cursor-grab active:cursor-grabbing"></div>
+                <div class="absolute bottom-4 left-4 px-3 py-1.5 rounded-lg glass-panel text-[10px] text-gray-300 font-mono flex items-center gap-2 border border-white/10">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                    <span>3D Real-time WebGL Engine</span>
+                </div>
+            </div>
+
+            <!-- Perfume Specs Badges -->
+            <div class="grid grid-cols-3 gap-4">
+                <div class="p-4 rounded-xl glass-panel border border-white/5 text-center">
+                    <span class="text-[10px] uppercase text-gray-400 block mb-1">Concentration</span>
+                    <span class="font-serif font-bold text-sm text-gold-400">Extrait de Parfum</span>
+                </div>
+                <div class="p-4 rounded-xl glass-panel border border-white/5 text-center">
+                    <span class="text-[10px] uppercase text-gray-400 block mb-1">Volume</span>
+                    <span class="font-serif font-bold text-sm text-gold-400">100 ML / 3.4 FL. OZ.</span>
+                </div>
+                <div class="p-4 rounded-xl glass-panel border border-white/5 text-center">
+                    <span class="text-[10px] uppercase text-gray-400 block mb-1">Sillage</span>
+                    <span class="font-serif font-bold text-sm text-gold-400">Intense / Infinite</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Information & Action -->
+        <div class="lg:col-span-5 space-y-8 glass-panel p-8 rounded-3xl border border-white/10">
+            <div>
+                <span class="text-xs uppercase tracking-[0.25em] text-gold-400 font-bold block mb-2">Haute Creation</span>
+                <h1 class="text-4xl font-serif font-bold text-white">{{ product.name }}</h1>
+                {% if product.tagline %}
+                <p class="text-sm font-serif italic text-gold-300 mt-1">{{ product.tagline }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Price & Availability -->
+            <div class="flex items-center justify-between border-y border-white/10 py-4">
+                <div>
+                    <span class="text-3xl font-serif font-bold text-gold-400">${{ "%.2f"|format(product.price) }}</span>
+                    <span class="text-xs text-gray-400 block mt-0.5">Taxes & Shipping Included</span>
+                </div>
+                <div>
+                    {% if product.stock > 0 %}
+                    <span class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-950 text-emerald-400 border border-emerald-500/30">
+                        In Stock ({{ product.stock }} units)
+                    </span>
+                    {% else %}
+                    <span class="px-3 py-1 rounded-full text-xs font-bold bg-rose-950 text-rose-400 border border-rose-500/30">
+                        Sold Out
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Description -->
+            <div class="space-y-3">
+                <h3 class="text-xs uppercase tracking-widest font-bold text-gray-300">The Story</h3>
+                <p class="text-xs text-gray-300 leading-relaxed font-light">
+                    {{ product.description }}
+                </p>
+            </div>
+
+            <!-- Olfactory Notes Spectrum -->
+            {% if product.fragrance_notes %}
+            <div class="p-4 rounded-xl bg-obsidian-900/60 border border-gold-500/20 space-y-2">
+                <span class="text-[11px] uppercase tracking-widest text-gold-400 font-bold flex items-center gap-2">
+                    <i class="fa-solid fa-wind"></i>
+                    <span>Fragrance Notes Accord</span>
+                </span>
+                <p class="text-xs text-gray-200 font-mono leading-relaxed">
+                    {{ product.fragrance_notes }}
+                </p>
+            </div>
+            {% endif %}
+
+            <!-- Add to Cart Form -->
+            <form action="{{ url_for('add_to_cart') }}" method="POST" class="space-y-4 pt-4">
+                <input type="hidden" name="product_id" value="{{ product.id }}">
+                <div class="flex items-center gap-4">
+                    <label class="text-xs uppercase tracking-widest text-gray-400 font-semibold">Quantity:</label>
+                    <input type="number" name="quantity" value="1" min="1" max="{{ product.stock }}" class="w-20 px-3 py-2 bg-obsidian-900 border border-white/20 rounded-xl text-center text-white focus:outline-none focus:border-gold-500">
+                </div>
+
+                <button type="submit" {% if product.stock <= 0 %}disabled{% endif %} class="w-full py-4 rounded-2xl bg-gradient-to-r from-gold-500 to-amber-600 hover:brightness-110 text-obsidian-900 font-bold text-sm tracking-widest uppercase transition-all shadow-xl shadow-amber-500/20 disabled:opacity-50 flex items-center justify-center gap-3">
+                    <i class="fa-solid fa-bag-shopping"></i>
+                    <span>Add To Luxury Bag</span>
+                </button>
+            </form>
+
+            <!-- Admin Quick Link -->
+            <div class="pt-4 border-t border-white/10 flex items-center justify-between text-xs text-gray-400">
+                <span>Product ID: #{{ product.id }}</span>
+                <a href="{{ url_for('admin_edit_product', product_id=product.id) }}" class="text-gold-400 hover:underline flex items-center gap-1">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                    <span>Edit in Admin</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Related Fragrances -->
+    {% if related_products %}
+    <div class="mt-24 pt-12 border-t border-white/10">
+        <h3 class="text-2xl font-serif font-bold text-white mb-8">Complementary Creations</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {% for rel in related_products %}
+            <a href="{{ url_for('product_detail', product_id=rel.id) }}" class="p-4 rounded-2xl glass-panel border border-white/10 hover:border-gold-500/50 transition-all flex items-center gap-4 group">
+                <img src="{{ rel.image_url }}" alt="{{ rel.name }}" class="w-20 h-20 object-cover rounded-xl">
+                <div>
+                    <h4 class="font-serif text-lg font-bold text-white group-hover:text-gold-400 transition-colors">{{ rel.name }}</h4>
+                    <p class="text-xs text-gold-400 font-bold">${{ "%.2f"|format(rel.price) }}</p>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/perfume3d.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        initPerfume3DViewer('productDetail3DCanvas', {
+            name: {{ product.name|tojson }},
+            bottle_color: {{ product.bottle_color|tojson }},
+            liquid_color: {{ product.liquid_color|tojson }},
+            accent_color: {{ product.accent_color|tojson }}
+        });
+    });
+</script>
+{% endblock %}

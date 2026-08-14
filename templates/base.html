@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en" class="dark scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AURA | Haute Parfumerie{% endblock %}</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        gold: {
+                            100: '#fef3c7',
+                            300: '#fde047',
+                            400: '#facc15',
+                            500: '#eab308',
+                            600: '#ca8a04',
+                            700: '#a16207',
+                        },
+                        obsidian: {
+                            900: '#08080a',
+                            800: '#121216',
+                            700: '#1a1a22',
+                        }
+                    },
+                    fontFamily: {
+                        serif: ['Playfair Display', 'Georgia', 'serif'],
+                        sans: ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- GSAP & ScrollTrigger -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <!-- Three.js & OrbitControls -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #08080a;
+            color: #f3f4f6;
+            overflow-x: hidden;
+        }
+        h1, h2, h3, h4, .font-serif {
+            font-family: 'Playfair Display', serif;
+        }
+        .gold-gradient-text {
+            background: linear-gradient(135deg, #fef08a 0%, #eab308 50%, #ca8a04 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .gold-border-glow {
+            box-shadow: 0 0 20px rgba(234, 179, 8, 0.15);
+            border: 1px solid rgba(234, 179, 8, 0.3);
+        }
+        .glass-panel {
+            background: rgba(18, 18, 22, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .glass-panel-gold {
+            background: rgba(26, 26, 34, 0.75);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(234, 179, 8, 0.25);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #08080a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #27272a;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #eab308;
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-obsidian-900 text-gray-100 flex flex-col min-h-screen selection:bg-gold-500 selection:text-black">
+
+    <!-- Navigation Header -->
+    <nav class="fixed top-0 left-0 right-0 z-50 glass-panel border-b border-white/10 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <a href="{{ url_for('home') }}" class="flex items-center gap-3 group">
+                <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-gold-600 via-amber-400 to-yellow-200 flex items-center justify-center text-obsidian-900 font-serif font-bold text-xl tracking-tighter shadow-lg group-hover:scale-105 transition-transform">
+                    A
+                </div>
+                <div class="flex flex-col">
+                    <span class="font-serif text-xl tracking-widest font-bold gold-gradient-text uppercase">AURA</span>
+                    <span class="text-[9px] uppercase tracking-[0.25em] text-gray-400">Haute Parfumerie</span>
+                </div>
+            </a>
+
+            <!-- Navigation Links -->
+            <div class="hidden md:flex items-center gap-8 text-sm font-medium tracking-wider uppercase">
+                <a href="{{ url_for('home') }}" class="hover:text-gold-400 transition-colors py-1 relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-gold-500 hover:after:w-full after:transition-all">Home</a>
+                <a href="{{ url_for('products_list') }}" class="hover:text-gold-400 transition-colors py-1 relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-gold-500 hover:after:w-full after:transition-all">Collection</a>
+                <a href="{{ url_for('cart') }}" class="hover:text-gold-400 transition-colors py-1 flex items-center gap-2">
+                    <i class="fa-solid fa-bag-shopping"></i>
+                    <span>Cart</span>
+                    {% if session.get('cart') %}
+                    <span class="bg-gold-500 text-obsidian-900 text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                        {{ session.get('cart').values()|sum }}
+                    </span>
+                    {% endif %}
+                </a>
+            </div>
+
+            <!-- Admin Action Button -->
+            <div class="flex items-center gap-4">
+                <a href="{{ url_for('admin_dashboard') }}" class="px-4 py-2 text-xs uppercase tracking-widest font-semibold text-gold-400 border border-gold-500/40 rounded-full hover:bg-gold-500 hover:text-black transition-all shadow-sm flex items-center gap-2">
+                    <i class="fa-solid fa-sliders"></i>
+                    <span class="hidden sm:inline">Admin System</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    <div class="pt-24 max-w-5xl mx-auto px-6 w-full">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="mb-4 p-4 rounded-xl border flex items-center justify-between text-sm glass-panel backdrop-blur-md {% if category == 'success' %}border-emerald-500/50 text-emerald-300 bg-emerald-950/30{% else %}border-amber-500/50 text-amber-300 bg-amber-950/30{% endif %}">
+                <div class="flex items-center gap-3">
+                    <i class="fa-solid {% if category == 'success' %}fa-circle-check text-emerald-400{% else %}fa-circle-info text-amber-400{% endif %}"></i>
+                    <span>{{ message }}</span>
+                </div>
+                <button onclick="this.parentElement.remove()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Main Content -->
+    <main class="flex-grow">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-obsidian-800 border-t border-white/5 py-12 mt-20">
+        <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div class="space-y-4">
+                <div class="flex items-center gap-2">
+                    <div class="w-7 h-7 rounded-full bg-gold-500 flex items-center justify-center text-black font-serif font-bold text-sm">A</div>
+                    <span class="font-serif text-lg font-bold gold-gradient-text">AURA</span>
+                </div>
+                <p class="text-xs text-gray-400 leading-relaxed">
+                    Crafting bespoke olfactive art. Every elixir is bottled with pure essence and housed in sculptured glass.
+                </p>
+            </div>
+            <div>
+                <h4 class="font-serif text-sm uppercase tracking-widest text-gold-400 mb-4">Routes Navigation</h4>
+                <ul class="space-y-2 text-xs text-gray-400">
+                    <li><a href="{{ url_for('home') }}" class="hover:text-gold-300 transition-colors">Home Page (3D Showroom)</a></li>
+                    <li><a href="{{ url_for('products_list') }}" class="hover:text-gold-300 transition-colors">Products Catalog</a></li>
+                    <li><a href="{{ url_for('cart') }}" class="hover:text-gold-300 transition-colors">Shopping Cart</a></li>
+                    <li><a href="{{ url_for('admin_dashboard') }}" class="hover:text-gold-300 transition-colors">Admin Dashboard</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-serif text-sm uppercase tracking-widest text-gold-400 mb-4">Admin Capabilities</h4>
+                <ul class="space-y-2 text-xs text-gray-400">
+                    <li><a href="{{ url_for('admin_create_product') }}" class="hover:text-gold-300 transition-colors">Add New Fragrance</a></li>
+                    <li><span class="text-gray-500">Edit Perfume Specs</span></li>
+                    <li><span class="text-gray-500">Delete Product Records</span></li>
+                    <li><span class="text-gray-500">Stock & Price Control</span></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-serif text-sm uppercase tracking-widest text-gold-400 mb-4">Haute Couture</h4>
+                <p class="text-xs text-gray-400 leading-relaxed mb-3">
+                    Paris &bull; Grasse &bull; New York &bull; Tokyo
+                </p>
+                <div class="text-xs text-gold-500/80 font-mono">
+                    &copy; 2025 AURA Parfums. All Rights Reserved.
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
