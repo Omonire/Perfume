@@ -1,11 +1,18 @@
 import os
 import base64
+from functools import wraps
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'perfume_luxury_secret_key_2025'
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'perfume_luxury_secret_key_2025_prod_aura')
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+
+# Admin Credentials (Environment variables with fallback defaults for Vercel/Local)
+ADMIN_USERNAME = os.environ.get('ADMIN_USERNAME', 'admin')
+ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'aura2025!')
 
 # Database configuration: support Vercel serverless /tmp fallback and local sqlite file
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -30,6 +37,16 @@ try:
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 except OSError:
     pass
+
+
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not session.get('admin_logged_in'):
+            flash('Please log in with admin credentials to access the Admin Panel.', 'warning')
+            return redirect(url_for('admin_login', next=request.url))
+        return f(*args, **kwargs)
+    return decorated_function
 
 
 class Product(db.Model):
@@ -122,7 +139,7 @@ with app.app_context():
     seed_database()
 
 
-# Routes
+# Public Routes
 @app.route('/')
 def home():
     featured_products = Product.query.limit(4).all()
@@ -181,14 +198,44 @@ def clear_cart():
     return redirect(url_for('cart'))
 
 
-# Admin Routes
+# Admin Auth Routes
+@app.route('/admin/login', methods=['GET', 'POST'])
+def admin_login():
+    if session.get('admin_logged_in'):
+        return redirect(url_for('admin_dashboard'))
+
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+
+        if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
+            session['admin_logged_in'] = True
+            flash('Authenticated successfully as Admin.', 'success')
+            next_url = request.args.get('next') or url_for('admin_dashboard')
+            return redirect(next_url)
+        else:
+            flash('Invalid admin credentials provided.', 'danger')
+
+    return render_template('admin/login.html')
+
+
+@app.route('/admin/logout')
+def admin_logout():
+    session.pop('admin_logged_in', None)
+    flash('Logged out from Admin Panel.', 'info')
+    return redirect(url_for('home'))
+
+
+# Protected Admin Routes
 @app.route('/admin')
+@admin_required
 def admin_dashboard():
     products = Product.query.order_by(Product.id.desc()).all()
     return render_template('admin/dashboard.html', products=products)
 
 
 @app.route('/admin/products/new', methods=['GET', 'POST'])
+@admin_required
 def admin_create_product():
     if request.method == 'POST':
         name = request.form.get('name')
@@ -243,6 +290,7 @@ def admin_create_product():
 
 
 @app.route('/admin/products/<int:product_id>/edit', methods=['GET', 'POST'])
+@admin_required
 def admin_edit_product(product_id):
     product = db.session.get(Product, product_id) or db.first_or_404(db.select(Product).filter_by(id=product_id))
     if request.method == 'POST':
@@ -282,6 +330,7 @@ def admin_edit_product(product_id):
 
 
 @app.route('/admin/products/<int:product_id>/delete', methods=['POST'])
+@admin_required
 def admin_delete_product(product_id):
     product = db.session.get(Product, product_id) or db.first_or_404(db.select(Product).filter_by(id=product_id))
     name = product.name

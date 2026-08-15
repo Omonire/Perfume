@@ -127,10 +127,20 @@
 
             <!-- Admin Action Button -->
             <div class="flex items-center gap-4">
+                {% if session.get('admin_logged_in') %}
                 <a href="{{ url_for('admin_dashboard') }}" class="px-4 py-2 text-xs uppercase tracking-widest font-semibold text-gold-400 border border-gold-500/40 rounded-full hover:bg-gold-500 hover:text-black transition-all shadow-sm flex items-center gap-2">
                     <i class="fa-solid fa-sliders"></i>
                     <span class="hidden sm:inline">Admin System</span>
                 </a>
+                <a href="{{ url_for('admin_logout') }}" class="px-3 py-2 text-xs uppercase tracking-widest font-semibold text-rose-400 hover:text-rose-300 transition-all flex items-center gap-1" title="Log out of Admin">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </a>
+                {% else %}
+                <a href="{{ url_for('admin_login') }}" class="px-4 py-2 text-xs uppercase tracking-widest font-semibold text-gray-300 border border-white/20 rounded-full hover:border-gold-500 hover:text-gold-400 transition-all shadow-sm flex items-center gap-2">
+                    <i class="fa-solid fa-lock"></i>
+                    <span class="hidden sm:inline">Admin Access</span>
+                </a>
+                {% endif %}
             </div>
         </div>
     </nav>
@@ -140,9 +150,9 @@
         {% with messages = get_flashed_messages(with_categories=true) %}
           {% if messages %}
             {% for category, message in messages %}
-              <div class="mb-4 p-4 rounded-xl border flex items-center justify-between text-sm glass-panel backdrop-blur-md {% if category == 'success' %}border-emerald-500/50 text-emerald-300 bg-emerald-950/30{% else %}border-amber-500/50 text-amber-300 bg-amber-950/30{% endif %}">
+              <div class="mb-4 p-4 rounded-xl border flex items-center justify-between text-sm glass-panel backdrop-blur-md {% if category == 'success' %}border-emerald-500/50 text-emerald-300 bg-emerald-950/30{% elif category == 'danger' %}border-rose-500/50 text-rose-300 bg-rose-950/30{% else %}border-amber-500/50 text-amber-300 bg-amber-950/30{% endif %}">
                 <div class="flex items-center gap-3">
-                    <i class="fa-solid {% if category == 'success' %}fa-circle-check text-emerald-400{% else %}fa-circle-info text-amber-400{% endif %}"></i>
+                    <i class="fa-solid {% if category == 'success' %}fa-circle-check text-emerald-400{% elif category == 'danger' %}fa-triangle-exclamation text-rose-400{% else %}fa-circle-info text-amber-400{% endif %}"></i>
                     <span>{{ message }}</span>
                 </div>
                 <button onclick="this.parentElement.remove()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
