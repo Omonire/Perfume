@@ -147,6 +147,17 @@
             liquid_color: {{ product.liquid_color|tojson }},
             accent_color: {{ product.accent_color|tojson }}
         });
+
+        if (typeof anime !== 'undefined') {
+            anime({
+                targets: '.lg\\:col-span-5 > *',
+                translateY: [20, 0],
+                opacity: [0, 1],
+                delay: anime.stagger(100),
+                duration: 900,
+                easing: 'easeOutQuad'
+            });
+        }
     });
 </script>
 {% endblock %}
