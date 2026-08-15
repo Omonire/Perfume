@@ -24,7 +24,7 @@
             </h1>
 
             <p class="text-base text-gray-300 max-w-xl leading-relaxed font-light">
-                Experience haute parfumerie elevated by 3D architectural craft. Hand-poured rare botanical oils housed in crystal clarity.
+                Experience haute parfumerie in hand-crafted bottles. Hand-poured rare botanical oils housed in crystal clarity.
             </p>
 
             <div class="flex flex-wrap items-center gap-4 pt-4">
@@ -47,22 +47,22 @@
                     <div class="text-[11px] uppercase tracking-wider text-gray-400 mt-1">Sillage Diffusion</div>
                 </div>
                 <div>
-                    <div class="font-serif text-2xl font-bold text-gold-400">GSAP / 3D</div>
-                    <div class="text-[11px] uppercase tracking-wider text-gray-400 mt-1">Interactive UI</div>
+                    <div class="font-serif text-2xl font-bold text-gold-400">Interactive</div>
+                    <div class="text-[11px] uppercase tracking-wider text-gray-400 mt-1">Perfume Showcase</div>
                 </div>
             </div>
         </div>
 
-        <!-- Hero 3D Interactive Canvas -->
+        <!-- Hero Interactive Canvas Container -->
         <div class="lg:col-span-6 relative flex flex-col items-center justify-center">
             <div class="w-full h-[500px] sm:h-[580px] rounded-3xl glass-panel-gold relative overflow-hidden flex items-center justify-center border border-gold-500/30 shadow-2xl">
-                <!-- Three.js Canvas Container -->
-                <div id="hero3DCanvas" class="w-full h-full cursor-grab active:cursor-grabbing"></div>
+                <!-- Interactive Canvas Container -->
+                <div id="hero3DCanvas" class="w-full h-full flex items-center justify-center"></div>
 
                 <!-- Interactive Hint Badge -->
                 <div class="absolute bottom-6 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full glass-panel text-[11px] text-gray-300 tracking-wider uppercase border border-white/10 pointer-events-none flex items-center gap-2">
-                    <i class="fa-solid fa-arrows-spin text-gold-400 animate-spin"></i>
-                    <span>Drag to rotate 3D Sculpture</span>
+                    <i class="fa-solid fa-hand-pointer text-gold-400 animate-bounce"></i>
+                    <span>Hover or move cursor over bottle</span>
                 </div>
             </div>
         </div>
@@ -175,7 +175,6 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{{ url_for('static', filename='js/perfume3d.js') }}"></script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         // Initialize 3D Hero Bottle
